@@ -109,14 +109,23 @@
     }
 
     .cp-unique-block .cp-price {
-      margin-top: 10px;
+      margin-top: -5;
+      margin-bottom: 30px;
       font-size: 2.5rem;
       font-weight: bold;
       color: #004175;
+      line-height: 1.2;
+    }
+    .cp-unique-block .cp-price .unit {
+      font-size: 0.8rem;
+      font-weight: normal;
+      line-height: 1.2;
+      margin-top: 2px;
     }
 
     .cp-unique-block .cp-total {
-      margin-top: -40px;
+      margin-top: -20px;
+      min-height: 30px;
       font-size: 1.2rem;
       font-weight: normal;
       color: #004175;
@@ -239,10 +248,9 @@
         </div>
         <p class="cp-price">
           $58
-          <span class="unit" style="font-size: 0.8rem; font-weight: normal"
-            >each</span
-          >
+          <span class="unit">each</span>
         </p>
+
         <p class="cp-total">
           TOTAL $348
           <span class="cp-original-price" style="text-decoration: line-through"
@@ -307,35 +315,33 @@
   </div>
 
   <script>
-    (function () {
-      const root = document.currentScript.closest(".cp-unique-block");
-      const radios = root.querySelectorAll(".cp-radio");
+    document
+      .querySelectorAll(".cp-unique-block")
+      .forEach((root, blockIndex) => {
+        if (root.dataset.cpInitialized) return;
+        root.dataset.cpInitialized = "true";
 
-      // ✅ Set background color of featured card on initial load
-      const featuredCard = root.querySelector(".cp-product-card.cp-featured");
-      const initialFlavor =
-        root.querySelector('input[name="flavor-6"]:checked')?.value ||
-        "Vanilla";
-      if (featuredCard) {
-        featuredCard.style.backgroundColor =
-          initialFlavor === "Vanilla" ? "#ebe1db" : "#dee3f1";
-      }
+        const cards = root.querySelectorAll(".cp-product-card");
 
-      radios.forEach((radio) => {
-        radio.addEventListener("change", (event) => {
-          const selectedFlavor = event.target.value;
-          const flavorKey = selectedFlavor.toLowerCase().replace(/\s+/g, "-");
-
-          // Set all radios to match selected
-          radios.forEach((r) => {
-            r.checked = r.value === selectedFlavor;
+        cards.forEach((card, cardIndex) => {
+          const radios = card.querySelectorAll(".cp-radio");
+          const flavorName = `cp-flavor-${blockIndex}-${cardIndex}`;
+          radios.forEach((radio) => {
+            radio.name = flavorName;
           });
+        });
 
-          // Update all product images
-          const allCards = root.querySelectorAll(".cp-product-card");
-          allCards.forEach((card) => {
+        function updateFlavor(flavor) {
+          const flavorKey = flavor.toLowerCase().replace(/\s+/g, "-");
+
+          cards.forEach((card) => {
+            const radios = card.querySelectorAll(".cp-radio");
+            radios.forEach((radio) => {
+              radio.checked = radio.value === flavor;
+            });
+
             const img = card.querySelector(".cp-product-image img");
-            const newSrc = img?.getAttribute(`data-flavor-${flavorKey}`);
+            const newSrc = img.getAttribute(`data-flavor-${flavorKey}`);
             if (newSrc && img.src !== newSrc) {
               img.style.opacity = 0;
               setTimeout(() => {
@@ -345,28 +351,42 @@
             }
           });
 
-          // ✅ Update background color of featured card on flavor change
+          const featuredCard = root.querySelector(
+            ".cp-product-card.cp-featured"
+          );
           if (featuredCard) {
             featuredCard.style.backgroundColor =
-              selectedFlavor === "Vanilla" ? "#ebe1db" : "#dee3f1";
+              flavor === "Vanilla" ? "#e9edf7" : "#f5eeea";
           }
+        }
+
+        root.querySelectorAll(".cp-radio").forEach((radio) => {
+          radio.addEventListener("change", (e) => {
+            if (e.target.checked) {
+              updateFlavor(e.target.value);
+            }
+          });
         });
-      });
 
-      // ✅ Preload images
-      const preload = [
-        "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Vanilla_1.png?v=1743081321",
-        "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Chocolate_1.png?v=1743081321",
-        "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Vanilla_3.png?v=1743081322",
-        "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Chocolate_3.png?v=1743081321",
-        "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Vanilla_6.png?v=1743081322",
-        "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Chocolate_6.png?v=1743081321",
-      ];
+        setTimeout(() => {
+          updateFlavor("Vanilla");
+        }, 100);
 
-      preload.forEach((src) => {
-        const img = new Image();
-        img.src = src;
+        if (!window.cpPreloaded) {
+          const preload = [
+            "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Vanilla_1.png?v=1743081321",
+            "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Chocolate_1.png?v=1743081321",
+            "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Vanilla_3.png?v=1743081322",
+            "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Chocolate_3.png?v=1743081321",
+            "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Vanilla_6.png?v=1743081322",
+            "https://cdn.shopify.com/s/files/1/0014/0158/5725/files/CP_Chocolate_6.png?v=1743081321",
+          ];
+          preload.forEach((src) => {
+            const img = new Image();
+            img.src = src;
+          });
+          window.cpPreloaded = true;
+        }
       });
-    })();
   </script>
 </div>
