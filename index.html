@@ -32,30 +32,7 @@
 
     .cp-unique-block .cp-featured {
       box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
-      background-color: #ebe1db; /* Vanilla default on load */
-    }
-
-    .cp-unique-block .cp-badge {
-      position: absolute;
-      top: -28px;
-      right: -28px;
-      width: 95px;
-      height: 95px;
-      background-color: #004175;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.2rem;
-      font-weight: 800;
-      text-align: center;
-      line-height: 1.2;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      z-index: 10;
-      padding: 6px;
-      white-space: normal;
+      background-color: #e9edf7; /* Vanilla default on load */
     }
 
     .cp-unique-block .cp-product-image {
@@ -164,12 +141,31 @@
       width: 80%;
       margin: 10px auto;
     }
+
+    @media (max-width: 768px) {
+      .cp-product-options {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .cp-product-card.card-6 {
+        order: 1;
+      }
+
+      .cp-product-card.card-3 {
+        order: 2;
+      }
+
+      .cp-product-card.card-1 {
+        order: 3;
+      }
+    }
   </style>
 
   <div class="cp-container">
     <div class="cp-product-options">
       <!-- 1 Bag -->
-      <div class="cp-product-card">
+      <div class="cp-product-card card-1">
         <h2 class="cp-product-title">1 Bag</h2>
         <div class="cp-product-image">
           <img
@@ -210,12 +206,18 @@
         </p>
         <hr class="cp-divider" />
         <p class="cp-freebies">+ FREE SHIPPING<br />+ FREE SHAKER CUP</p>
-        <button class="cp-buy-button">BUY NOW 10% OFF</button>
+
+        <button
+          class="cp-buy-button"
+          data-checkout-vanilla="https://checkoutchamp.com/vanilla-1-url"
+          data-checkout-chocolate="https://checkoutchamp.com/chocolate-1-url"
+        >
+          BUY NOW 10% OFF
+        </button>
       </div>
 
       <!-- 6 Bags -->
-      <div class="cp-product-card cp-featured">
-        <div class="cp-badge">Most Popular</div>
+      <div class="cp-product-card cp-featured card-6">
         <h2 class="cp-product-title">6 Bags</h2>
         <div class="cp-product-image">
           <img
@@ -260,11 +262,17 @@
         </p>
         <hr class="cp-divider" />
         <p class="cp-freebies">+ FREE SHIPPING<br />+ FREE SHAKER CUP</p>
-        <button class="cp-buy-button">BUY NOW 41% OFF</button>
+        <button
+          class="cp-buy-button"
+          data-checkout-vanilla="https://checkoutchamp.com/vanilla-6-url"
+          data-checkout-chocolate="https://checkoutchamp.com/chocolate-6-url"
+        >
+          BUY NOW 41% OFF
+        </button>
       </div>
 
       <!-- 3 Bags -->
-      <div class="cp-product-card">
+      <div class="cp-product-card card-3">
         <h2 class="cp-product-title">3 Bags</h2>
         <div class="cp-product-image">
           <img
@@ -310,7 +318,13 @@
         </p>
         <hr class="cp-divider" />
         <p class="cp-freebies">+ FREE SHIPPING<br />+ FREE SHAKER CUP</p>
-        <button class="cp-buy-button">BUY NOW 36% OFF</button>
+        <button
+          class="cp-buy-button"
+          data-checkout-vanilla="https://checkoutchamp.com/vanilla-3-url"
+          data-checkout-chocolate="https://checkoutchamp.com/chocolate-3-url"
+        >
+          BUY NOW 36% OFF
+        </button>
       </div>
     </div>
   </div>
@@ -329,6 +343,24 @@
           const flavorName = `cp-flavor-${blockIndex}-${cardIndex}`;
           radios.forEach((radio) => {
             radio.name = flavorName;
+          });
+
+          // ✅ Checkout Champ button redirect logic
+          const button = card.querySelector(".cp-buy-button");
+          button.addEventListener("click", () => {
+            const selectedFlavor = [...radios]
+              .find((r) => r.checked)
+              ?.value?.toLowerCase();
+            const datasetKey = `checkout${selectedFlavor
+              .charAt(0)
+              .toUpperCase()}${selectedFlavor.slice(1)}`;
+            const checkoutUrl = button.dataset[datasetKey];
+
+            if (checkoutUrl) {
+              window.location.href = checkoutUrl;
+            } else {
+              alert("Checkout URL not found for this option.");
+            }
           });
         });
 
@@ -369,9 +401,7 @@
           });
         });
 
-        setTimeout(() => {
-          updateFlavor("Vanilla");
-        }, 100);
+        updateFlavor("Vanilla");
 
         if (!window.cpPreloaded) {
           const preload = [
